@@ -20,11 +20,9 @@ REM Add all files and commit
 git add .
 git commit -m "%msg%"
 
-REM Rename branch to main if needed
-git branch -M main
 
-REM Force push to GitHub
-git push -u origin main --force
+REM 🚨 FORCE PUSH — overwrite GitHub
+git push -u origin master --force
 
 echo.
 echo ✅ Forced push complete!
