@@ -22,7 +22,9 @@ git commit -m "%msg%"
 
 
 REM 🚨 FORCE PUSH — overwrite GitHub
-git push -u origin master --force
+git remote set-url origin https://github.com/Emre-Sekeroglu/winsy
+git push origin main --force
+
 
 echo.
 echo ✅ Forced push complete!
