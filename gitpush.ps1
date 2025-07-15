@@ -20,11 +20,12 @@ REM Add all files and commit
 git add .
 git commit -m "%msg%"
 
+REM Rename branch to main
+git branch -M main
 
-REM 🚨 FORCE PUSH — overwrite GitHub
+REM Ensure correct remote URL and force push
 git remote set-url origin https://github.com/Emre-Sekeroglu/winsy
 git push origin main --force
-
 
 echo.
 echo ✅ Forced push complete!
