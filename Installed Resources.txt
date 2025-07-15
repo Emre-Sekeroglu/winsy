@@ -1,0 +1,2 @@
+* run the terminal as Administrator
+pip install ttkbootstrap

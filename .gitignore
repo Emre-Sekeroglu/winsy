@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Build and dist folders
+build/
+dist/
+*.spec
+
+# VS Code and local
+.vscode/
+*.code-workspace
+
+# Executables
+*.exe
+
+# Optional:
+powershell.exe
+
+# Push Command
+gitpush.ps1
