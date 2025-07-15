@@ -20,4 +20,4 @@ dist/
 powershell.exe
 
 # Push Command
-gitpush.ps1
+gitpush.bat
