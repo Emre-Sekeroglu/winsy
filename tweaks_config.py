@@ -1,5 +1,5 @@
 # -------------------------------
-# 💾 REGISTRY TWEAKS
+# REGISTRY TWEAKS
 # -------------------------------
 
 REGISTRY_TWEAKS = [
@@ -31,7 +31,7 @@ REGISTRY_TWEAKS = [
 ]
 
 # -------------------------------
-# ⚡ POWERCFG TWEAKS
+# POWERCFG TWEAKS
 # -------------------------------
 
 POWERCFG_TWEAKS = [
@@ -43,7 +43,6 @@ POWERCFG_TWEAKS = [
         "tooltip":     "Enabling this tweak will set the CPU minimum to 5% on both AC and DC power, maximum to 100%, and disable the hidden overclock feature which is set 'aggresive' in your settings on windows by default!. Trust me, enable this. It doesn't help FPS by any means, It makes your PC run loud when idle, It just makes your CPU go crazy even if it doesn't need to all the time.",
         "category":    "Power Tweaks",
 
-        # >>> START OF FIXED COMMANDS
         "on_cmds": [
             "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5",
             "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5",
@@ -63,13 +62,12 @@ POWERCFG_TWEAKS = [
             "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 2",
             "powercfg /S SCHEME_CURRENT"
         ]
-        # <<< END OF FIXED COMMANDS
     }
 
 ]
 
 # -------------------------------
-# 🔗 Merge for use in the app
+#  Merge for use in the app
 # -------------------------------
 
 TWEAKS = REGISTRY_TWEAKS + POWERCFG_TWEAKS

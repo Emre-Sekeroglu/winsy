@@ -32,7 +32,7 @@ def build_tweak_ui(root, tweak):
     )
     switch.grid(row=0, column=1, padx=10)
 
-    # CUSTOM TOOLTIP
+# Custom Tooltip
     icon = tb.Label(frame, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
     icon.grid(row=0, column=2, padx=(5, 0), pady=(2, 0))
 
@@ -76,7 +76,7 @@ def build_tweak_ui(root, tweak):
             tooltip_text = tweak.get("tooltip", "No description available.")
             text_box.insert("1.0", tooltip_text)
 
-    # Apply link style for URLs
+# Apply link style for URLs
             import re
             url_pattern = r"(https?://[^\s]+)"
             for match in re.finditer(url_pattern, tooltip_text):
@@ -103,7 +103,7 @@ def build_tweak_ui(root, tweak):
             text_box.bind("<Button-1>", open_link)
             text_box.bind("<Motion>", on_motion)
 
-    # Prevent editing but allow selection
+# Prevent editing but allow selection
             def ignore_edit(event): return "break"
             text_box.bind("<Key>", ignore_edit)
             text_box.bind("<Control-v>", ignore_edit)
@@ -133,7 +133,7 @@ def build_tweak_ui(root, tweak):
     icon.bind("<Enter>", on_icon_enter)
     icon.bind("<Leave>", on_icon_leave)
 
-    # Sync Logic
+# Sync Logic
     def sync():
         if tweak.get("type") == "powercfg":
             min_ac = read_powercfg_value("ac", "SUB_PROCESSOR", "PROCTHROTTLEMIN")

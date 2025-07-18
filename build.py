@@ -92,7 +92,7 @@ def generate_checksums(file_path):
     markdown_lines.append(f"Get-FileHash .\\{os.path.basename(file_path)} -Algorithm SHA256")
     markdown_lines.append("```")
 
-    # Write the final .txt file
+# Write the final .txt file
     markdown_file = file_path.replace(".exe", "-checksums.txt")
     with open(markdown_file, "w") as f:
         f.write("\n".join(markdown_lines))

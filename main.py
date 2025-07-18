@@ -61,7 +61,7 @@ def build_specs_section(root):
             ttk.Button(row, text="Copy", width=8,
                        command=lambda v=value: copy_to_clipboard(root, v)).pack(side="right")
 
-    # ==== Boot into the bios ====
+# ==== Boot into the bios ====
     import subprocess
 
     def show_error_dialog(message):
@@ -118,7 +118,7 @@ def build_specs_section(root):
         confirm_win.after(0, lambda: center(confirm_win))
 
 
-        # ===== Center the window on the screen =====
+# ===== Center the window on the screen =====
         confirm_win.update_idletasks()
         w = confirm_win.winfo_width()
         h = confirm_win.winfo_height()
@@ -127,7 +127,6 @@ def build_specs_section(root):
         x = (ws // 2) - (w // 2)
         y = (hs // 2) - (h // 2)
         confirm_win.geometry(f"+{x}+{y}")
-        # ===========================================
 
     bios_frame = ttk.Frame(pane.subframe)
     bios_frame.pack(fill="x", pady=(10, 2))
@@ -135,7 +134,7 @@ def build_specs_section(root):
     ttk.Button(bios_frame, text="Reboot", command=reboot_to_bios).pack(side="left", padx=(0, 10))
     
 
-# ========== Main App ==========
+# === Main App ===
 root = tb.Window(themename="flatly")
 root.iconbitmap(resource_path("winsy_icon.ico"))  # << This fixes your error
 root.title(f"Winsy v-{__version__}")
