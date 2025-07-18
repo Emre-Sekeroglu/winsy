@@ -56,7 +56,7 @@ cmd = [
     "main.py"
 ]
 
-print(f"🚀 Running PyInstaller with name: {exe_name}")
+print(f" Running PyInstaller with name: {exe_name}")
 subprocess.run(cmd)
 
 # Step 3: Generate Checksum Files
