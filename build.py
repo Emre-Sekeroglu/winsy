@@ -54,6 +54,7 @@ cmd = [
     f"--name={exe_name}",
     "--version-file=version.txt",
     "main.py"
+    "--add-data", "profiles/recommended.json;profiles",
 ]
 
 print(f" Running PyInstaller with name: {exe_name}")

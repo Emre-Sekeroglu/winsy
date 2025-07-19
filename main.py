@@ -27,6 +27,10 @@ from pc_specs import get_pc_specs
 import tkinter as tk
 from tkinter import ttk
 from collections import defaultdict
+import json
+from tkinter import filedialog
+import subprocess
+from utils import resource_path, show_info_dialog
 
 # Add this function 
 def resource_path(relative_path):
@@ -61,32 +65,7 @@ def build_specs_section(root):
             ttk.Button(row, text="Copy", width=8,
                        command=lambda v=value: copy_to_clipboard(root, v)).pack(side="right")
 
-# Boot into the bios
-    import subprocess
-
-    def show_error_dialog(message):
-        error_win = tk.Toplevel(root)
-        error_win.title("Error")
-        error_win.iconbitmap(resource_path("winsy_icon.ico"))
-        error_win.grab_set()
-        error_win.resizable(False, False)
-
-        tk.Label(error_win, text=message, padx=20, pady=15, fg="red", wraplength=300).pack()
-        ttk.Button(error_win, text="OK", command=error_win.destroy).pack(pady=(0, 15))
-
-        error_win.after(0, lambda: center(error_win))
-
-    def center(win):
-        win.update_idletasks()
-        w = win.winfo_width()
-        h = win.winfo_height()
-        ws = win.winfo_screenwidth()
-        hs = win.winfo_screenheight()
-        x = (ws // 2) - (w // 2)
-        y = (hs // 2) - (h // 2)
-        win.geometry(f"+{x}+{y}")
-
-
+    # boot into the bios
     def reboot_to_bios():
         confirm_win = tk.Toplevel(root)
         confirm_win.title("Confirmation")
@@ -106,7 +85,7 @@ def build_specs_section(root):
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 subprocess.run("shutdown /r /fw /t 0", shell=True, check=True, startupinfo=startupinfo, creationflags=subprocess.CREATE_NO_WINDOW)
             except subprocess.CalledProcessError:
-                show_error_dialog("Failed to reboot into BIOS.\nYou must run the application as Administrator.")
+                show_info_dialog(root, "Error", "Failed to reboot into BIOS.\nYou must run the application as Administrator.")
 
 
         def on_no():
@@ -115,10 +94,7 @@ def build_specs_section(root):
         ttk.Button(btn_frame, text="Yes", command=on_yes).pack(side="left", padx=10)
         ttk.Button(btn_frame, text="No", command=on_no).pack(side="left", padx=10)
 
-        confirm_win.after(0, lambda: center(confirm_win))
-
-
-# Center the window on the screen
+        # Center the window on the screen
         confirm_win.update_idletasks()
         w = confirm_win.winfo_width()
         h = confirm_win.winfo_height()
@@ -132,7 +108,6 @@ def build_specs_section(root):
     bios_frame.pack(fill="x", pady=(10, 2))
     ttk.Label(bios_frame, text="Boot into the BIOS", width=22, anchor="w").pack(side="left")
     ttk.Button(bios_frame, text="Reboot", command=reboot_to_bios).pack(side="left", padx=(0, 10))
-    
 
 # Main App 
 root = tb.Window(themename="flatly")
@@ -202,21 +177,156 @@ def enable_scroll_behavior():
 # Build content
 build_specs_section(scroll_frame)
 
+apply_controls = []
+
 for cat, tweaks in categories.items():
     pane = CollapsiblePane(scroll_frame, text=cat)
     pane.pack(fill="x", padx=20, pady=5)
     for tweak in tweaks:
-        build_tweak_ui(pane.subframe, tweak)
+        result = build_tweak_ui(pane.subframe, tweak, root)
+        if result:
+            var, toggle = result
+            apply_controls.append({
+                "tweak": tweak,
+                "var": var,
+                "apply": toggle,
+                "initial": var.get()
+            })
 
 enable_scroll_behavior()
+
+# Footer Buttons
+
+def check_for_changes():
+    changed = any(ctrl["var"].get() != ctrl["initial"] for ctrl in apply_controls)
+    state = "normal" if changed else "disabled"
+    apply_btn.config(state=state)
+    save_btn.config(state=state)
+    discard_btn.config(state=state)
+
+def apply():
+    any_failed = False
+
+    for ctrl in apply_controls:
+        result = ctrl["apply"]()
+        if result is False:
+            any_failed = True
+
+        ctrl["initial"] = ctrl["var"].get()
+
+    check_for_changes()
+
+    if any_failed:
+        show_info_dialog(
+            root,
+            "Administrator Required",
+            "Some settings could not be applied.\nPlease run Winsy as Administrator."
+        )
+
+
+def discard_changes():
+    for ctrl in apply_controls:
+        ctrl["var"].set(ctrl["initial"])
+    check_for_changes()
+
+def apply_recommended():
+    try:
+        path = resource_path("profiles/recommended.json")
+        with open(path, "r") as f:
+            data = json.load(f)
+        for ctrl in apply_controls:
+            name = ctrl["tweak"]["description"]
+            if name in data:
+                ctrl["var"].set(data[name])
+        check_for_changes()
+
+        show_info_dialog(root, 
+            "Recommended Settings",
+            "Recommended settings loaded.\nPress Apply to save changes."
+        )
+    except Exception as e:
+        print("[RECOMMENDED ERROR]", e)
+
+def load_profile():
+    path = filedialog.askopenfilename(title="Load Profile", filetypes=[("JSON Files", "*.json")])
+    if not path:
+        return
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+        for ctrl in apply_controls:
+            name = ctrl["tweak"]["description"]
+            if name in data:
+                ctrl["var"].set(data[name])
+        check_for_changes()
+    except Exception as e:
+        print("[LOAD ERROR]", e)
+
+def save_profile():
+    path = filedialog.asksaveasfilename(title="Save Profile As", defaultextension=".json",
+                                        filetypes=[("JSON Files", "*.json")])
+    if not path:
+        return
+    try:
+        result = {
+            ctrl["tweak"]["description"]: ctrl["var"].get()
+            for ctrl in apply_controls
+        }
+        with open(path, "w") as f:
+            json.dump(result, f, indent=2)
+        print("[SAVED]", path)
+    except Exception as e:
+        print("[SAVE ERROR]", e)
+
 
 # Footer (fixed)
 footer = ttk.Frame(root)
 footer.grid(row=1, column=0, sticky="ew")
 
-footer_text = f"Winsy v{__version__} by Emre Sekeroglu | Licensed under GPLv3 | "
-footer_label = ttk.Label(footer, text=footer_text, font=("Segoe UI", 8))
-footer_label.pack(side="left", padx=5, pady=3)
+# Left tooltip icon
+info_icon = ttk.Label(footer, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
+info_icon.pack(side="left", padx=(10, 0), pady=8)
+
+def show_about_tooltip(event):
+    about = f"Winsy v{__version__}\nLicensed under GPLv3\nhttps://winsy.uk/support"
+    tooltip = tk.Toplevel()
+    tooltip.wm_overrideredirect(True)
+    x = info_icon.winfo_rootx() + 20
+    y = info_icon.winfo_rooty() + 20
+    tooltip.geometry(f"+{x}+{y}")
+    label = ttk.Label(tooltip, text=about, background="#ffffe0", relief="solid", borderwidth=1)
+    label.pack()
+    def destroy_tooltip(_):
+        tooltip.destroy()
+    label.bind("<Leave>", destroy_tooltip)
+    tooltip.after(3000, tooltip.destroy)
+
+info_icon.bind("<Enter>", show_about_tooltip)
+
+# Right-aligned buttons in correct order
+apply_btn = ttk.Button(footer, text="Apply", command=apply)
+apply_btn.pack(side="right", padx=(5, 10), pady=8)
+
+discard_btn = ttk.Button(footer, text="Discard", command=discard_changes)
+discard_btn.pack(side="right", padx=5, pady=8)
+
+load_btn = ttk.Button(footer, text="Load", command=load_profile)
+load_btn.pack(side="right", padx=5, pady=8)
+
+save_btn = ttk.Button(footer, text="Save", command=save_profile)
+save_btn.pack(side="right", padx=5, pady=8)
+
+recommended_btn = ttk.Button(footer, text="Recommended", command=apply_recommended)
+recommended_btn.pack(side="right", padx=(5, 0), pady=8)
+
+# Initially disable Save, Discard, Apply
+save_btn.config(state="disabled")
+discard_btn.config(state="disabled")
+apply_btn.config(state="disabled")
+
+# Attach change tracking
+for ctrl in apply_controls:
+    ctrl["var"].trace_add("write", lambda *_, c=ctrl: check_for_changes())
 
 def open_support_link(event):
     import webbrowser

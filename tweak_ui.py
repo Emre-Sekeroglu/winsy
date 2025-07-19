@@ -4,9 +4,10 @@ from ttkbootstrap.tooltip import ToolTip
 from registry_utils import read_value, write_value
 import tkinter as tk
 from power_utils import run_powercfg_commands, read_powercfg_value
+from utils import show_info_dialog
 
-def build_tweak_ui(root, tweak):
-    frame = tk.Frame(root)
+def build_tweak_ui(parent, tweak, root):
+    frame = tk.Frame(parent)
     frame.pack(fill="x", padx=10, pady=4)
 
     label = tk.Label(frame, text=tweak["description"], anchor="w", width=50)
@@ -19,20 +20,21 @@ def build_tweak_ui(root, tweak):
             cmds = tweak["on_cmds"] if var.get() else tweak["off_cmds"]
             success = run_powercfg_commands(cmds)
             print("[TOGGLE][powercfg]", "Success" if success else "Failed")
+            return success
         else:
             new_val = tweak["on"] if var.get() else tweak["off"]
             success = write_value(tweak["path"], tweak["value"], new_val)
             print("[TOGGLE][registry]", "Success" if success else "Failed")
+            return success
 
     switch = tb.Checkbutton(
         frame,
         variable=var,
         bootstyle="success-round-toggle",
-        command=toggle
     )
     switch.grid(row=0, column=1, padx=10)
 
-# Custom Tooltip
+    # Custom Tooltip
     icon = tb.Label(frame, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
     icon.grid(row=0, column=2, padx=(5, 0), pady=(2, 0))
 
@@ -76,7 +78,7 @@ def build_tweak_ui(root, tweak):
             tooltip_text = tweak.get("tooltip", "No description available.")
             text_box.insert("1.0", tooltip_text)
 
-# Apply link style for URLs
+            # Apply link style for URLs
             import re
             url_pattern = r"(https?://[^\s]+)"
             for match in re.finditer(url_pattern, tooltip_text):
@@ -103,7 +105,7 @@ def build_tweak_ui(root, tweak):
             text_box.bind("<Button-1>", open_link)
             text_box.bind("<Motion>", on_motion)
 
-# Prevent editing but allow selection
+            # Prevent editing but allow selection
             def ignore_edit(event): return "break"
             text_box.bind("<Key>", ignore_edit)
             text_box.bind("<Control-v>", ignore_edit)
@@ -133,7 +135,7 @@ def build_tweak_ui(root, tweak):
     icon.bind("<Enter>", on_icon_enter)
     icon.bind("<Leave>", on_icon_leave)
 
-# Sync Logic
+        # Sync Logic
     def sync():
         if tweak.get("type") == "powercfg":
             min_ac = read_powercfg_value("ac", "SUB_PROCESSOR", "PROCTHROTTLEMIN")
@@ -158,3 +160,5 @@ def build_tweak_ui(root, tweak):
             var.set(val == tweak["on"])
 
     sync()
+    
+    return (var, toggle)
