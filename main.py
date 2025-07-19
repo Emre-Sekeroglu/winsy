@@ -28,25 +28,25 @@ import tkinter as tk
 from tkinter import ttk
 from collections import defaultdict
 
-# ========== Add this function ==========
+# Add this function 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller."""
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
-# ========== Categorize tweaks ==========
+# Categorize tweaks 
 categories = defaultdict(list)
 for tweak in TWEAKS:
     categories[tweak["category"]].append(tweak)
 
-# ========== Clipboard utility ==========
+# Clipboard utility
 def copy_to_clipboard(root, text):
     root.clipboard_clear()
     root.clipboard_append(text)
     root.update()
 
-# ========== Specs section using CollapsingFrame ==========
+#  Specs section using CollapsingFrame 
 def build_specs_section(root):
     specs = get_pc_specs()
     pane = CollapsiblePane(root, text="My PC Specs")
@@ -61,7 +61,7 @@ def build_specs_section(root):
             ttk.Button(row, text="Copy", width=8,
                        command=lambda v=value: copy_to_clipboard(root, v)).pack(side="right")
 
-# ==== Boot into the bios ====
+# Boot into the bios
     import subprocess
 
     def show_error_dialog(message):
@@ -118,7 +118,7 @@ def build_specs_section(root):
         confirm_win.after(0, lambda: center(confirm_win))
 
 
-# ===== Center the window on the screen =====
+# Center the window on the screen
         confirm_win.update_idletasks()
         w = confirm_win.winfo_width()
         h = confirm_win.winfo_height()
@@ -134,29 +134,102 @@ def build_specs_section(root):
     ttk.Button(bios_frame, text="Reboot", command=reboot_to_bios).pack(side="left", padx=(0, 10))
     
 
-# === Main App ===
+# Main App 
 root = tb.Window(themename="flatly")
-root.iconbitmap(resource_path("winsy_icon.ico"))  # << This fixes your error
+root.iconbitmap(resource_path("winsy_icon.ico"))
 root.title(f"Winsy v-{__version__}")
-root.geometry("700x520")
+root.geometry("720x800")
+root.minsize(720, 400)
+root.maxsize(720, root.winfo_screenheight())
 
-build_specs_section(root)
+root.grid_rowconfigure(0, weight=1)  # scrollable expands
+root.grid_rowconfigure(1, weight=0)  # footer stays fixed
+
+# Use grid layout
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+
+# Scrollable middle section 
+middle_frame = ttk.Frame(root)
+middle_frame.grid(row=0, column=0, sticky="nsew")
+
+canvas = tk.Canvas(middle_frame, highlightthickness=0)
+vsb = ttk.Scrollbar(middle_frame, orient="vertical", command=canvas.yview)
+canvas.configure(yscrollcommand=vsb.set)
+
+canvas.pack(side="left", fill="both", expand=True)
+vsb.pack(side="right", fill="y")
+
+scroll_frame = ttk.Frame(canvas)
+
+# Create window to hold scrollable content
+window_id = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+
+def on_configure(event):
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
+scroll_frame.bind("<Configure>", on_configure)
+
+# Force canvas width to match container
+def resize_canvas(event):
+    canvas.itemconfig(window_id, width=event.width)
+
+canvas.bind("<Configure>", resize_canvas)
+
+# Scroll handler that blocks upward scrolling past top
+def _on_mousewheel(event):
+    if sys.platform == "darwin":
+        delta = event.delta
+    else:
+        delta = int(event.delta / 120)
+
+    # Only block upward scroll at top
+    if delta > 0 and canvas.yview()[0] <= 0.0:
+        return
+
+    canvas.yview_scroll(-1 * delta, "units")
+
+# Bind scroll globally only when mouse is over canvas
+def enable_scroll_behavior():
+    def bind_mousewheel(_):
+        root.bind_all("<MouseWheel>", _on_mousewheel)
+    def unbind_mousewheel(_):
+        root.unbind_all("<MouseWheel>")
+
+    canvas.bind("<Enter>", bind_mousewheel)
+    canvas.bind("<Leave>", unbind_mousewheel)
+
+# Build content
+build_specs_section(scroll_frame)
 
 for cat, tweaks in categories.items():
-    pane = CollapsiblePane(root, text=cat)
+    pane = CollapsiblePane(scroll_frame, text=cat)
     pane.pack(fill="x", padx=20, pady=5)
     for tweak in tweaks:
         build_tweak_ui(pane.subframe, tweak)
 
-# === About ===
-about_frame = ttk.Frame(root)
-about_frame.pack(fill="x", padx=20, pady=10)
+enable_scroll_behavior()
 
-about_text = (
-    f"Winsy v{__version__} by Emre Sekeroglu | "
-    f"Licensed under GPLv3 | Support: https://winsy.uk/support"
+# Footer (fixed)
+footer = ttk.Frame(root)
+footer.grid(row=1, column=0, sticky="ew")
+
+footer_text = f"Winsy v{__version__} by Emre Sekeroglu | Licensed under GPLv3 | "
+footer_label = ttk.Label(footer, text=footer_text, font=("Segoe UI", 8))
+footer_label.pack(side="left", padx=5, pady=3)
+
+def open_support_link(event):
+    import webbrowser
+    webbrowser.open("https://winsy.uk/support")
+
+link = ttk.Label(
+    footer,
+    text="Support",
+    font=("Segoe UI", 8, "underline"),
+    foreground="blue",
+    cursor="hand2"
 )
-label = ttk.Label(about_frame, text=about_text, font=("Segoe UI", 8), anchor="center")
-label.pack(fill="x")
+link.pack(side="left")
+link.bind("<Button-1>", open_support_link)
 
 root.mainloop()
