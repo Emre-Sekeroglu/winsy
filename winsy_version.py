@@ -1,5 +1,5 @@
 # winsy_version.py
-__version__ = "0.6"
+__version__ = "0.7"
 
 VERSION_INFO = {
     "CompanyName": "Winsy",
