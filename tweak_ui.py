@@ -31,7 +31,7 @@ def build_tweak_ui(parent, tweak, root):
     switch = tb.Checkbutton(
         frame,
         variable=var,
-        bootstyle="success-round-toggle",
+        bootstyle="Custom,round-toggle",
     )
     switch.grid(row=0, column=1, padx=10)
 

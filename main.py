@@ -105,6 +105,27 @@ def build_specs_section(root):
 
 # Main App 
 root = tb.Window(themename="flatly")
+# Custom toggle colour
+style = tb.Style()
+
+style.configure(
+    'Custom.Roundtoggle.Toolbutton',
+    background='#2C3E50',
+    foreground='white',
+    focuscolor='#2C3E50',
+)
+
+style.map(
+    'Custom.Roundtoggle.Toolbutton',
+    background=[
+        ('selected', '#2C3E50'),
+        ('!selected', '#ffffff')
+    ],
+    foreground=[
+        ('selected', 'white'),
+        ('!selected', '#2C3E50')
+    ]
+)
 root.iconbitmap(resource_path("winsy_icon.ico"))
 root.title(f"Winsy v-{__version__}")
 root.geometry("720x800")
