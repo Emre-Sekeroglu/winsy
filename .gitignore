@@ -18,6 +18,3 @@ dist/
 
 # Optional:
 powershell.exe
-
-# Push Command
-gitpush.bat

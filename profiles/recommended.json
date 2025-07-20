@@ -1,0 +1,5 @@
+{
+  "Show advanced power settings in Control Panel": true,
+  "Hides the 'Learn more about this picture' desktop icon.": true,
+  "Sets CPU min 5% on AC+DC, max 100 %, and disables boost.": true
+}

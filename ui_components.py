@@ -19,8 +19,8 @@ class CollapsiblePane(ttk.Frame):
         self.button.pack(fill="x")
 
         self.subframe = ttk.Frame(self)
-        # Start hidden by default
-
+        
+# Start hidden by default
     def _toggle(self):
         if self.show_var.get():
             self.subframe.pack(fill="x", padx=20, pady=5)
