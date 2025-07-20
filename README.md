@@ -1,72 +1,117 @@
-# Winsy
+Winsy
 
-⚠️ **Disclaimer** ⚠️  
-Winsy modifies system-level settings. Use responsibly and only if you understand the implications of each tweak. All changes are reversible through the app interface or manually.
+⚠️ Disclaimer
+Winsy modifies system-level settings. Use responsibly and only if you understand the implications of each tweak. Some actions require administrator privileges. All changes are reversible through the app or manually.
 
----
+Overview
 
-Winsy is a lightweight desktop application that helps users quickly apply common Windows system tweaks through a modern and minimal GUI.
+Winsy is a lightweight desktop application that simplifies common Windows system tweaks via a clean and modern interface. Whether you're optimizing performance or customizing your setup, Winsy gives you structured access to essential registry and power settings—no need to dig through regedit or the command line.
 
-Whether you're setting up a fresh install, optimizing performance, or decluttering your desktop, Winsy provides essential toggles and power settings to streamline your configuration without digging through the Registry Editor or command line.
+✨ Features
 
----
+✅ Registry Tweaks
 
-##  Features
+Toggle system behaviors like hiding shortcut arrows or disabling telemetry. Managed through registry_utils.py using the native winreg API.
 
-### Registry Tweaks  
-Easily toggle options like hiding unnecessary desktop icons or revealing hidden system settings.
+⚡ Power Tweaks
 
-### Power Tweaks  
-Adjust CPU behavior on AC/DC power modes using the built-in `powercfg` commands. Tweak performance and energy efficiency with one click.
+Apply power-saving or performance enhancements via powercfg commands for AC/DC modes. Adjust CPU throttling, turbo boost, and more with one click (power_utils.py).
 
-### Live System Sync  
-Each toggle automatically syncs with your current system settings to reflect real-time status on startup.
+🔄 Live System Sync
 
-### My PC Specs Panel  
-View basic PC details including Windows version, edition, system architecture, motherboard model, and serial number. Includes easy copy-to-clipboard buttons.
+Each toggle auto-syncs with your system's actual configuration at launch. See accurate status immediately—no guesswork.
 
-### Simple UI with Collapse Support  
-A clean, collapsible pane layout categorizes tweaks under Power Tweaks, Personalization, etc.
+🖥️ My PC Specs Panel
 
----
+Displays:
 
-##  How It Works
+OS Version and Edition
 
-- Registry Tweaks are handled using the `winreg` module via `registry_utils.py`.
-- Power Tweaks are configured via `powercfg` commands (e.g., CPU throttle limits, boost states) defined in `power_utils.py`.
-- Tweaks are listed in a centralized config file: `tweaks_config.py`.
-- The app auto-detects your current system values and syncs toggle states accordingly on launch.
+System Architecture
 
----
+Motherboard Model and Serial
 
-##  Tech Stack
+Quick copy buttons for serials
+Includes Reboot into BIOS with confirmation.
 
-- Python 3.x  
-- [ttkbootstrap](https://ttkbootstrap.readthedocs.io/) for themed GUI  
-- Native Windows APIs (`winreg`, `powercfg`, `WMI` via PowerShell)
 
----
+🧩 Simple Collapsible UI
 
-##  Permissions
+Modern, collapsible panes categorize tweaks under titles like:
 
-Some features (especially registry or power tweaks) require **administrator privileges** to apply changes successfully. Run the app as Administrator when needed.
+Power Tweaks
 
----
+Personalization
 
-##  Getting Started
+Network & Privacy (etc.)
 
-1. Clone this repo or download the latest release.
-2. Ensure Python 3 and required dependencies are installed.
-3. Run:
 
-```bash
+🔧 Profile System
+
+Load/save tweak profiles to .json
+
+One-click Recommended Profile
+
+Track unsaved changes and disable/enable Apply, Save, Discard intelligently
+
+
+💡 Interactive Tooltips
+
+Custom hover tooltips with:
+
+Multi-line rich descriptions
+
+Clickable URLs (cursor changes on link hover)
+
+Auto-dismiss behavior on mouse leave
+
+
+🛠️ How It Works
+
+Registry Tweaks via winreg (see registry_utils.py)
+
+Power Tweaks via powercfg (see power_utils.py)
+
+All tweak definitions live in tweaks_config.py
+
+State sync on app launch reflects real system values
+
+Packaged with Python + ttkbootstrap for a clean theme
+
+
+🧪 Tech Stack
+
+Python 3.x
+
+ttkbootstrap (GUI theming)
+
+Native Windows APIs: winreg, powercfg, PowerShell (via subprocess)
+
+
+🔐 Permissions
+
+Some tweaks (especially under the Registry or Power categories) require administrator rights to take effect. Winsy detects permission issues and notifies users with clear error dialogs.
+
+🚀 Getting Started
+
+1. Clone or download this repo
+
+2. Ensure Python 3.x and dependencies are installed
+
 python main.py
-```
 
-4. For packaging to `.exe`, use PyInstaller with icon embedding:
+3. To package as an .exe (with icon and version info):
 
-```bash
 pyinstaller --noconfirm --onefile --windowed --icon=winsy_icon.ico main.py
-```
 
-⚠️ **Note:** Windows Defender will flag the package as a **Trojan**, which is a **false positive**.
+Or use the enhanced build script:
+
+python build.py
+
+> 📦 Automatically generates version.txt, builds the executable with metadata, and creates checksum files.
+
+
+
+❗ Known Issue
+
+Windows Defender may incorrectly flag the .exe as a Trojan although the exwcutable is sent to microsoft servers to be whitelisted. If Winfows Defender flags it as a false positive due to low reputation of unsigned executables, you may allow the exe and ignore the message. The source is open and licensed under GPLv3.
