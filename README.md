@@ -1,5 +1,7 @@
 Winsy
 
+## [v0.7] - In Development in the dev branch
+
 ⚠️ Disclaimer
 Winsy modifies system-level settings. Use responsibly and only if you understand the implications of each tweak. Some actions require administrator privileges. All changes are reversible through the app or manually.
 
