@@ -55,6 +55,8 @@ def build_specs_section(root):
     specs = get_pc_specs()
     pane = CollapsiblePane(root, text="My PC Specs")
     pane.pack(fill="x", padx=20, pady=(10, 5))
+    pane.show_var.set(True)
+    pane._toggle()
 
     for key, value in specs.items():
         row = ttk.Frame(pane.subframe)

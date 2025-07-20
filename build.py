@@ -53,7 +53,7 @@ cmd = [
     "--add-data", "winsy_icon.ico;.",
     f"--name={exe_name}",
     "--version-file=version.txt",
-    "main.py"
+    "main.py",
     "--add-data", "profiles/recommended.json;profiles",
 ]
 
