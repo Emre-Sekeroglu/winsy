@@ -1,10 +1,11 @@
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
-from ttkbootstrap.tooltip import ToolTip
 from registry_utils import read_value, write_value
 import tkinter as tk
 from power_utils import run_powercfg_commands, read_powercfg_value
 from utils import show_info_dialog
+import re
+import webbrowser
 
 def build_tweak_ui(parent, tweak, root):
     frame = tk.Frame(parent)
@@ -79,7 +80,6 @@ def build_tweak_ui(parent, tweak, root):
             text_box.insert("1.0", tooltip_text)
 
             # Apply link style for URLs
-            import re
             url_pattern = r"(https?://[^\s]+)"
             for match in re.finditer(url_pattern, tooltip_text):
                 start_idx = f"1.0 + {match.start()} chars"
@@ -90,7 +90,6 @@ def build_tweak_ui(parent, tweak, root):
                 idx = text_box.index(f"@{event.x},{event.y}")
                 tags = text_box.tag_names(idx)
                 if "link" in tags:
-                    import webbrowser
                     url = text_box.get(f"{idx} wordstart", f"{idx} wordend")
                     webbrowser.open(url)
 

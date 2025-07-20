@@ -19,7 +19,6 @@ import os
 import sys
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
-from ttkbootstrap.tooltip import ToolTip
 from ui_components import CollapsiblePane
 from tweaks_config import TWEAKS
 from tweak_ui import build_tweak_ui
@@ -31,13 +30,6 @@ import json
 from tkinter import filedialog
 import subprocess
 from utils import resource_path, show_info_dialog
-
-# Add this function 
-def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and for PyInstaller."""
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
 
 # Categorize tweaks 
 categories = defaultdict(list)
