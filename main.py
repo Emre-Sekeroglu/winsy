@@ -217,7 +217,6 @@ def check_for_changes():
     changed = any(ctrl["var"].get() != ctrl["initial"] for ctrl in apply_controls)
     state = "normal" if changed else "disabled"
     apply_btn.config(state=state)
-    save_btn.config(state=state)
     discard_btn.config(state=state)
 
 def apply():
@@ -345,7 +344,6 @@ recommended_btn = ttk.Button(footer, text="Recommended", command=apply_recommend
 recommended_btn.pack(side="right", padx=(5, 0), pady=8)
 
 # Initially disable Save, Discard, Apply
-save_btn.config(state="disabled")
 discard_btn.config(state="disabled")
 apply_btn.config(state="disabled")
 
