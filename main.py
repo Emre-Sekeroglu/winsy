@@ -30,6 +30,7 @@ import json
 from tkinter import filedialog
 import subprocess
 from utils import resource_path, show_info_dialog
+import webbrowser
 
 # Categorize tweaks 
 categories = defaultdict(list)
@@ -272,10 +273,15 @@ def load_profile():
         for ctrl in apply_controls:
             name = ctrl["tweak"]["description"]
             if name in data:
-                ctrl["var"].set(data[name])
+                value = data[name]
+                if isinstance(ctrl["var"], tk.BooleanVar):
+                    ctrl["var"].set(bool(value))
+                elif isinstance(ctrl["var"], tk.StringVar):
+                    ctrl["var"].set(str(value))
         check_for_changes()
     except Exception as e:
         print("[LOAD ERROR]", e)
+
 
 def save_profile():
     path = filedialog.asksaveasfilename(title="Save Profile As", defaultextension=".json",
@@ -294,29 +300,33 @@ def save_profile():
         print("[SAVE ERROR]", e)
 
 
+
 # Footer (fixed)
 footer = ttk.Frame(root)
 footer.grid(row=1, column=0, sticky="ew")
 
 # Left tooltip icon
-info_icon = ttk.Label(footer, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
+info_icon = ttk.Label(footer, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="hand2")
 info_icon.pack(side="left", padx=(10, 0), pady=8)
 
-def show_about_tooltip(event):
-    about = f"Winsy v{__version__}\nLicensed under GPLv3\nhttps://winsy.uk/support"
-    tooltip = tk.Toplevel()
-    tooltip.wm_overrideredirect(True)
-    x = info_icon.winfo_rootx() + 20
-    y = info_icon.winfo_rooty() + 20
-    tooltip.geometry(f"+{x}+{y}")
-    label = ttk.Label(tooltip, text=about, background="#ffffe0", relief="solid", borderwidth=1)
-    label.pack()
-    def destroy_tooltip(_):
-        tooltip.destroy()
-    label.bind("<Leave>", destroy_tooltip)
-    tooltip.after(3000, tooltip.destroy)
+def show_about_popup():
+    popup = tk.Toplevel(root)
+    popup.title("About Winsy")
+    popup.iconbitmap(resource_path("winsy_icon.ico"))
+    popup.geometry("400x200")
+    popup.resizable(False, False)
+    popup.grab_set()
 
-info_icon.bind("<Enter>", show_about_tooltip)
+    ttk.Label(popup, text=f"Winsy v{__version__}", font=("Segoe UI", 12, "bold")).pack(pady=(20, 5))
+    ttk.Label(popup, text="Licensed under GNU GPL v3").pack()
+
+    link = ttk.Label(popup, text="Visit Support Page", foreground="blue", cursor="hand2")
+    link.pack(pady=10)
+    link.bind("<Button-1>", lambda e: webbrowser.open("https://winsy.uk/support"))
+
+    ttk.Button(popup, text="Close", command=popup.destroy).pack(pady=10)
+
+info_icon.bind("<Button-1>", lambda e: show_about_popup())
 
 # Right-aligned buttons in correct order
 apply_btn = ttk.Button(footer, text="Apply", command=apply)
@@ -346,15 +356,5 @@ for ctrl in apply_controls:
 def open_support_link(event):
     import webbrowser
     webbrowser.open("https://winsy.uk/support")
-
-link = ttk.Label(
-    footer,
-    text="Support",
-    font=("Segoe UI", 8, "underline"),
-    foreground="blue",
-    cursor="hand2"
-)
-link.pack(side="left")
-link.bind("<Button-1>", open_support_link)
 
 root.mainloop()

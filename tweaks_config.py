@@ -35,36 +35,31 @@ REGISTRY_TWEAKS = [
 # -------------------------------
 
 POWERCFG_TWEAKS = [
-
     {
-        "name":        "Optimal Minimum & Maximum Power",
-        "type":        "powercfg",
-        "description": "Sets CPU min 5% on AC+DC, max 100 %, and disables boost.",
-        "tooltip":     "Enabling this tweak will set the CPU minimum to 5% on both AC and DC power, maximum to 100%, and disable the hidden overclock feature which is set 'aggresive' in your settings on windows by default!. Trust me, enable this. It doesn't help FPS by any means, It makes your PC run loud when idle, It just makes your CPU go crazy even if it doesn't need to all the time.",
-        "category":    "Power Tweaks",
-
+        "description": "Set CPU Min 5% / Max 100% (AC+DC)",
+        "category": "Power Tweaks",
+        "type": "powercfg",
         "on_cmds": [
-            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5",
             "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5",
-            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100",
-            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100",
-            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 0",
-            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 0",
-            "powercfg /S SCHEME_CURRENT"
-        ],
-
-        "off_cmds": [
             "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5",
-            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 80",
-            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100",
             "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100",
-            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 2",
-            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR be337238-0d82-4146-a960-4f3749d470c7 2",
-            "powercfg /S SCHEME_CURRENT"
-        ]
+            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100"
+        ],
+        "off_cmds": [
+            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0",
+            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0"
+        ],
+        "tooltip": "Sets min CPU at 5% and max at 100% for both plugged and battery modes. Improves responsiveness without boosting."
+    },
+    {
+        "description": "CPU Boost Mode",
+        "category": "Power Tweaks",
+        "type": "powercfg_dropdown",
+        "setting_guid": "be337238-0d82-4146-a960-4f3749d470c7",
+        "tooltip": "Controls how aggressively your CPU boosts performance.\n\n0 = Disabled\n1 = Enabled\n2 = Aggressive\n3 = Efficient Aggressive\n4 = Efficient Enabled"
     }
-
 ]
+
 
 # -------------------------------
 #  Merge for use in the app
