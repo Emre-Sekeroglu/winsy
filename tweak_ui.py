@@ -31,21 +31,28 @@ def create_dropdown_tweak(parent, tweak, root):
             if current_val in display_options:
                 default_display = current_val
             else:
-                print(f"[SYNC WARNING] Unknown value '{current_val}' for {tweak['description']}")
+                print(
+                    f"[SYNC WARNING] Unknown value '{current_val}' for {tweak['description']}"
+                )
                 default_display = tweak.get("default", display_options[0])
         except Exception as e:
-            print(f"[SYNC ERROR] Failed to read current value for {tweak['description']}: {e}")
+            print(
+                f"[SYNC ERROR] Failed to read current value for {tweak['description']}: {e}"
+            )
             default_display = tweak.get("default", display_options[0])
     else:
-        default_display = tweak.get("default", display_options[0] if display_options else "")
+        default_display = tweak.get(
+            "default", display_options[0] if display_options else ""
+        )
 
     current_value = tk.StringVar(value=default_display)
-
 
     dropdown = ttk.OptionMenu(row, current_value, default_display, *display_options)
     dropdown.grid(row=0, column=1, padx=(10, 0), sticky="ew")
 
-    icon = tb.Label(row, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
+    icon = tb.Label(
+        row, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow"
+    )
     icon.grid(row=0, column=2, padx=(10, 0))
 
     tooltip_win = None
@@ -124,6 +131,7 @@ def create_dropdown_tweak(parent, tweak, root):
         return tweak["apply"](value)
 
     return current_value, apply
+
 
 def build_tweak_ui(parent, tweak, root):
     frame = tk.Frame(parent)
