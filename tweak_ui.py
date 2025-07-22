@@ -11,7 +11,8 @@ import subprocess
 from utils import refresh_desktop
 
 
-# --- START: create_dropdown_tweak FIXED ---
+# create_dropdown_for_global_tweaks
+# This function creates a dropdown for global tweaks that are not powercfg specific.
 def create_dropdown_tweak(parent, tweak, root):
     row = ttk.Frame(parent)
     row.pack(fill="x", pady=(5, 0))
@@ -31,28 +32,21 @@ def create_dropdown_tweak(parent, tweak, root):
             if current_val in display_options:
                 default_display = current_val
             else:
-                print(
-                    f"[SYNC WARNING] Unknown value '{current_val}' for {tweak['description']}"
-                )
+                print(f"[SYNC WARNING] Unknown value '{current_val}' for {tweak['description']}")
                 default_display = tweak.get("default", display_options[0])
         except Exception as e:
-            print(
-                f"[SYNC ERROR] Failed to read current value for {tweak['description']}: {e}"
-            )
+            print(f"[SYNC ERROR] Failed to read current value for {tweak['description']}: {e}")
             default_display = tweak.get("default", display_options[0])
     else:
-        default_display = tweak.get(
-            "default", display_options[0] if display_options else ""
-        )
+        default_display = tweak.get("default", display_options[0] if display_options else "")
 
     current_value = tk.StringVar(value=default_display)
+
 
     dropdown = ttk.OptionMenu(row, current_value, default_display, *display_options)
     dropdown.grid(row=0, column=1, padx=(10, 0), sticky="ew")
 
-    icon = tb.Label(
-        row, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow"
-    )
+    icon = tb.Label(row, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
     icon.grid(row=0, column=2, padx=(10, 0))
 
     tooltip_win = None
@@ -132,17 +126,16 @@ def create_dropdown_tweak(parent, tweak, root):
 
     return current_value, apply
 
-
 def build_tweak_ui(parent, tweak, root):
     frame = tk.Frame(parent)
     frame.pack(fill="x", padx=10, pady=4)
 
-    # --- START: powercfg_dropdown ---
+    # powercfg_dropdown
     if tweak.get("type") == "powercfg_dropdown":
         var, apply_fn = create_dropdown_tweak(frame, tweak, root)
         return var, apply_fn
 
-    # --- BEGIN: toggle-based tweaks ---
+    # toggle-based tweaks
     label = tk.Label(frame, text=tweak["description"], anchor="w", width=50)
     label.grid(row=0, column=0, sticky="w")
 
