@@ -8,6 +8,108 @@ from utils import show_info_dialog
 import re
 import webbrowser
 import subprocess
+from utils import refresh_desktop
+
+
+# --- START: create_dropdown_tweak FIXED ---
+def create_dropdown_tweak(parent, tweak, root):
+    row = ttk.Frame(parent)
+    row.pack(fill="x", pady=(5, 0))
+
+    row.grid_columnconfigure(0, weight=0)
+    row.grid_columnconfigure(1, weight=1)
+    row.grid_columnconfigure(2, weight=0)
+
+    label = ttk.Label(row, text=tweak["description"])
+    label.grid(row=0, column=0, sticky="w")
+
+    options_dict = tweak.get("options", {})
+    display_options = list(options_dict.keys())
+    default_display = tweak.get("default", display_options[0] if display_options else "")
+    current_value = tk.StringVar(value=default_display)
+
+    dropdown = ttk.OptionMenu(row, current_value, default_display, *display_options)
+    dropdown.grid(row=0, column=1, padx=(10, 0), sticky="ew")
+
+    icon = tb.Label(row, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
+    icon.grid(row=0, column=2, padx=(10, 0))
+
+    tooltip_win = None
+    is_inside_icon = False
+    is_inside_tooltip = False
+
+    def destroy_tooltip():
+        nonlocal tooltip_win
+        if tooltip_win:
+            tooltip_win.destroy()
+            tooltip_win = None
+
+    def check_and_destroy():
+        if not is_inside_icon and not is_inside_tooltip:
+            destroy_tooltip()
+
+    def on_icon_enter(event):
+        nonlocal is_inside_icon, tooltip_win
+        is_inside_icon = True
+        if tooltip_win is None:
+            tooltip_win = tk.Toplevel(icon)
+            tooltip_win.wm_overrideredirect(True)
+            tooltip_win.attributes("-topmost", True)
+            x = icon.winfo_rootx() + 20
+            y = icon.winfo_rooty()
+            tooltip_win.geometry(f"+{x}+{y}")
+
+            text_box = tk.Text(
+                tooltip_win,
+                wrap="word",
+                height=6,
+                width=50,
+                bg="#ffffe0",
+                relief="solid",
+                bd=1,
+                cursor="xterm",
+            )
+            text_box.insert("1.0", tweak.get("tooltip", "No description available."))
+            text_box.config(state="disabled")
+            text_box.pack()
+
+            def on_tooltip_enter(e):
+                nonlocal is_inside_tooltip
+                is_inside_tooltip = True
+
+            def on_tooltip_leave(e):
+                nonlocal is_inside_tooltip
+                is_inside_tooltip = False
+                tooltip_win.after(100, check_and_destroy)
+
+            tooltip_win.bind("<Enter>", on_tooltip_enter)
+            tooltip_win.bind("<Leave>", on_tooltip_leave)
+            text_box.bind("<Enter>", on_tooltip_enter)
+            text_box.bind("<Leave>", on_tooltip_leave)
+
+    def on_icon_leave(event):
+        nonlocal is_inside_icon
+        is_inside_icon = False
+        icon.after(100, check_and_destroy)
+
+    icon.bind("<Enter>", on_icon_enter)
+    icon.bind("<Leave>", on_icon_leave)
+
+    def apply():
+        selected = current_value.get()
+        value = options_dict.get(selected)
+
+        if "apply" not in tweak:
+            print("[DROPDOWN ERROR] Missing 'apply' key")
+            return False
+
+        if value is None:
+            print(f"[DROPDOWN ERROR] Selected value not mapped: {selected}")
+            return False
+
+        return tweak["apply"](value)
+
+    return current_value, apply
 
 def build_tweak_ui(parent, tweak, root):
     frame = tk.Frame(parent)
@@ -15,109 +117,8 @@ def build_tweak_ui(parent, tweak, root):
 
     # --- START: powercfg_dropdown ---
     if tweak.get("type") == "powercfg_dropdown":
-        label = tk.Label(frame, text=tweak["description"], anchor="w", width=50)
-        label.grid(row=0, column=0, sticky="w")
-
-        boost_var = tk.StringVar()
-        options = {
-            "Disabled": "0",
-            "Enabled": "1",
-            "Aggressive": "2",
-            "Efficient Aggressive": "3",
-            "Efficient Enabled": "4"
-        }
-
-        dropdown = ttk.OptionMenu(frame, boost_var, "Disabled", *options.keys())
-        dropdown.grid(row=0, column=1, padx=10)
-
-        icon = tb.Label(frame, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
-        icon.grid(row=0, column=2, padx=(5, 0), pady=(2, 0))
-
-        tooltip_win = None
-        is_inside_icon = False
-        is_inside_tooltip = False
-
-        def destroy_tooltip():
-            nonlocal tooltip_win
-            if tooltip_win:
-                tooltip_win.destroy()
-                tooltip_win = None
-
-        def check_and_destroy():
-            if not is_inside_icon and not is_inside_tooltip:
-                destroy_tooltip()
-
-        def on_icon_enter(event):
-            nonlocal is_inside_icon, tooltip_win
-            is_inside_icon = True
-            if tooltip_win is None:
-                tooltip_win = tk.Toplevel(icon)
-                tooltip_win.wm_overrideredirect(True)
-                tooltip_win.attributes("-topmost", True)
-                x = icon.winfo_rootx() + 20
-                y = icon.winfo_rooty() + 20
-                tooltip_win.geometry(f"+{x}+{y}")
-
-                text_box = tk.Text(
-                    tooltip_win,
-                    wrap="word",
-                    height=6,
-                    width=50,
-                    bg="#ffffe0",
-                    relief="solid",
-                    bd=1,
-                    cursor="xterm"
-                )
-                tooltip_text = tweak.get("tooltip", "No description available.")
-                text_box.insert("1.0", tooltip_text)
-                text_box.config(state="disabled")
-                text_box.pack()
-
-                def on_tooltip_enter(e):
-                    nonlocal is_inside_tooltip
-                    is_inside_tooltip = True
-
-                def on_tooltip_leave(e):
-                    nonlocal is_inside_tooltip
-                    is_inside_tooltip = False
-                    tooltip_win.after(100, check_and_destroy)
-
-                tooltip_win.bind("<Enter>", on_tooltip_enter)
-                tooltip_win.bind("<Leave>", on_tooltip_leave)
-                text_box.bind("<Enter>", on_tooltip_enter)
-                text_box.bind("<Leave>", on_tooltip_leave)
-
-        def on_icon_leave(event):
-            nonlocal is_inside_icon
-            is_inside_icon = False
-            icon.after(100, check_and_destroy)
-
-        icon.bind("<Enter>", on_icon_enter)
-        icon.bind("<Leave>", on_icon_leave)
-
-        def sync_boost():
-            val_ac = read_powercfg_value("ac", "SUB_PROCESSOR", tweak["setting_guid"])
-            val_dc = read_powercfg_value("dc", "SUB_PROCESSOR", tweak["setting_guid"])
-            if val_ac == val_dc and str(val_ac) in options.values():
-                for k, v in options.items():
-                    if v == str(val_ac):
-                        boost_var.set(k)
-                        break
-
-        def apply_boost():
-            selected = options.get(boost_var.get(), "0")
-            try:
-                for mode in ["ac", "dc"]:
-                    cmd = f'powercfg /set{mode}valueindex SCHEME_CURRENT SUB_PROCESSOR {tweak["setting_guid"]} {selected}'
-                    subprocess.run(cmd, shell=True, check=True)
-                return True
-            except subprocess.CalledProcessError as e:
-                print("[DROPDOWN APPLY ERROR]", e)
-                return False
-
-        sync_boost()
-        return (boost_var, apply_boost)
-    # --- END: powercfg_dropdown ---
+        var, apply_fn = create_dropdown_tweak(frame, tweak, root)
+        return var, apply_fn
 
     # --- BEGIN: toggle-based tweaks ---
     label = tk.Label(frame, text=tweak["description"], anchor="w", width=50)
@@ -133,7 +134,14 @@ def build_tweak_ui(parent, tweak, root):
             return success
         else:
             new_val = tweak["on"] if var.get() else tweak["off"]
-            success = write_value(tweak["path"], tweak["value"], new_val)
+            success = write_value(
+                tweak["path"],
+                tweak["value"],
+                new_val,
+                tweak.get("root", "HKEY_LOCAL_MACHINE"),
+            )
+            if success and tweak.get("refresh_desktop"):
+                refresh_desktop()
             print("[TOGGLE][registry]", "Success" if success else "Failed")
             return success
 
@@ -144,8 +152,10 @@ def build_tweak_ui(parent, tweak, root):
     )
     switch.grid(row=0, column=1, padx=10)
 
-    icon = tb.Label(frame, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow")
-    icon.grid(row=0, column=2, padx=(5, 0), pady=(2, 0))
+    icon = tb.Label(
+        frame, text="ⓘ", font=("Segoe UI Symbol", 12), cursor="question_arrow"
+    )
+    icon.grid(row=0, column=2, padx=(10, 0))
 
     tooltip_win = None
     is_inside_icon = False
@@ -181,7 +191,7 @@ def build_tweak_ui(parent, tweak, root):
                 bg="#ffffe0",
                 relief="solid",
                 bd=1,
-                cursor="xterm"
+                cursor="xterm",
             )
             tooltip_text = tweak.get("tooltip", "No description available.")
             text_box.insert("1.0", tooltip_text)
@@ -210,7 +220,9 @@ def build_tweak_ui(parent, tweak, root):
             text_box.bind("<Button-1>", open_link)
             text_box.bind("<Motion>", on_motion)
 
-            def ignore_edit(event): return "break"
+            def ignore_edit(event):
+                return "break"
+
             text_box.bind("<Key>", ignore_edit)
             text_box.bind("<Control-v>", ignore_edit)
             text_box.bind("<Button-3>", ignore_edit)
@@ -247,8 +259,14 @@ def build_tweak_ui(parent, tweak, root):
             max_dc = read_powercfg_value("dc", "SUB_PROCESSOR", "PROCTHROTTLEMAX")
             var.set(min_ac == 5 and min_dc == 5 and max_ac == 100 and max_dc == 100)
         else:
-            val = read_value(tweak["path"], tweak["value"])
-            var.set(val == tweak["on"])
+            val = read_value(
+                tweak["path"], tweak["value"], tweak.get("root", "HKEY_LOCAL_MACHINE")
+            )
+            print("SYNC", tweak["description"], "→", val)  # temporary debug
+            if val is None:
+                var.set(tweak["on"] == 0)
+            else:
+                var.set(int(val) == tweak["on"])
 
     sync()
     return (var, toggle)

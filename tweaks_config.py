@@ -16,7 +16,6 @@ REGISTRY_TWEAKS = [
         "off":   1,
         "category": "Power Tweaks"
     },
-
     {
         "name":        "Remove 'Learn more about this picture' Desktop Icon",
         "description": "Hides the 'Learn more about this picture' desktop icon.",
@@ -26,9 +25,75 @@ REGISTRY_TWEAKS = [
         "on":          1,
         "off":         0,
         "category": "Personalization" 
+    },
+    {
+        "description": "Show Computer Icon",
+        "category": "Personalization",
+        "type": "registry",
+        "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel",
+        "value": "{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+        "on": 0,
+        "off": 1,
+        "root": "HKEY_CURRENT_USER",
+        "tooltip": "Toggle visibility of the 'This PC' (Computer) icon on the desktop.",
+        "refresh_desktop": True,
+        "is_desktop_icon_toggle": True
+    },
+    {
+        "description": "Show User's Files Icon",
+        "category": "Personalization",
+        "type": "registry",
+        "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel",
+        "value": "{59031a47-3f72-44a7-89c5-5595fe6b30ee}",
+        "on": 0,
+        "off": 1,
+        "root": "HKEY_CURRENT_USER",
+        "tooltip": "Toggle visibility of the user's personal folder icon on the desktop.",
+        "refresh_desktop": True,
+        "is_desktop_icon_toggle": True
+    },
+    {
+        "description": "Show Recycle Bin Icon",
+        "category": "Personalization",
+        "type": "registry",
+        "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel",
+        "value": "{645FF040-5081-101B-9F08-00AA002F954E}",
+        "on": 0,
+        "off": 1,
+        "root": "HKEY_CURRENT_USER",
+        "tooltip": "Toggle visibility of the Recycle Bin icon on the desktop.",
+        "refresh_desktop": True,
+        "is_desktop_icon_toggle": True
+    },
+    {
+        "description": "Show Network Icon",
+        "category": "Personalization",
+        "type": "registry",
+        "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel",
+        "value": "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}",
+        "on": 0,
+        "off": 1,
+        "root": "HKEY_CURRENT_USER",
+        "tooltip": "Toggle visibility of the Network icon on the desktop.",
+        "refresh_desktop": True,
+        "is_desktop_icon_toggle": True
+    },
+    {
+        "description": "Show Control Panel Icon",
+        "category": "Personalization",
+        "type": "registry",
+        "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel",
+        "value": "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}",
+        "on": 0,
+        "off": 1,
+        "root": "HKEY_CURRENT_USER",
+        "tooltip": "Toggle visibility of the Control Panel icon on the desktop.",
+        "refresh_desktop": True,
+        "is_desktop_icon_toggle": True
     }
-
 ]
+
+
 
 # -------------------------------
 # POWERCFG TWEAKS
@@ -52,12 +117,20 @@ POWERCFG_TWEAKS = [
         "tooltip": "Sets min CPU at 5% and max at 100% for both plugged and battery modes. Improves responsiveness without boosting."
     },
     {
-        "description": "CPU Boost Mode",
-        "category": "Power Tweaks",
-        "type": "powercfg_dropdown",
-        "setting_guid": "be337238-0d82-4146-a960-4f3749d470c7",
-        "tooltip": "Controls how aggressively your CPU boosts performance.\n\n0 = Disabled\n1 = Enabled\n2 = Aggressive\n3 = Efficient Aggressive\n4 = Efficient Enabled"
-    }
+    "description": "CPU Boost Mode",
+    "type": "powercfg_dropdown",
+    "setting_guid": "be337238-0d82-4146-a960-4f3749d470c7",
+    "category": "Power Tweaks",
+    "options": {
+        "Disabled": "0",
+        "Enabled": "1",
+        "Aggressive": "2",
+        "Efficient Aggressive": "3",
+        "Efficient Enabled": "4"
+    },
+    "default": "Disabled",
+    "tooltip": "Controls processor performance boost policy."
+}
 ]
 
 

@@ -2,5 +2,10 @@
   "Show advanced power settings in Control Panel": true,
   "Set CPU Min 5% / Max 100% (AC+DC)": true,
   "CPU Boost Mode": "Enabled",
-  "Hides the 'Learn more about this picture' desktop icon.": true
+  "Hides the 'Learn more about this picture' desktop icon.": true,
+  "Show Computer Icon": true,
+  "Show User's Files Icon": true,
+  "Show Recycle Bin Icon": true,
+  "Show Network Icon": false,
+  "Show Control Panel Icon": false
 }
