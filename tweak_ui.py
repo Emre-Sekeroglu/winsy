@@ -25,8 +25,22 @@ def create_dropdown_tweak(parent, tweak, root):
 
     options_dict = tweak.get("options", {})
     display_options = list(options_dict.keys())
-    default_display = tweak.get("default", display_options[0] if display_options else "")
+    if "read_current_value" in tweak:
+        try:
+            current_val = tweak["read_current_value"]()
+            if current_val in display_options:
+                default_display = current_val
+            else:
+                print(f"[SYNC WARNING] Unknown value '{current_val}' for {tweak['description']}")
+                default_display = tweak.get("default", display_options[0])
+        except Exception as e:
+            print(f"[SYNC ERROR] Failed to read current value for {tweak['description']}: {e}")
+            default_display = tweak.get("default", display_options[0])
+    else:
+        default_display = tweak.get("default", display_options[0] if display_options else "")
+
     current_value = tk.StringVar(value=default_display)
+
 
     dropdown = ttk.OptionMenu(row, current_value, default_display, *display_options)
     dropdown.grid(row=0, column=1, padx=(10, 0), sticky="ew")
@@ -140,7 +154,8 @@ def build_tweak_ui(parent, tweak, root):
                 new_val,
                 tweak.get("root", "HKEY_LOCAL_MACHINE"),
             )
-            if success and tweak.get("refresh_desktop"):
+            if success and tweak.get("refresh_desktop") is True:
+                print(f"[REFRESH TRIGGERED] {tweak['description']}")
                 refresh_desktop()
             print("[TOGGLE][registry]", "Success" if success else "Failed")
             return success

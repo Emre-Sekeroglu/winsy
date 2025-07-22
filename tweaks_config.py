@@ -1,3 +1,4 @@
+from power_utils import read_powercfg_value, run_powercfg_commands
 # -------------------------------
 # REGISTRY TWEAKS
 # -------------------------------
@@ -5,16 +6,18 @@
 REGISTRY_TWEAKS = [
 
     {
-        "name":        "Show Advanced Power Settings",
-        "description": "Show advanced power settings in Control Panel",
-        "tooltip":     "ON = extra options in advanced power settings",
-        "path":  r"SYSTEM\CurrentControlSet\Control\Power\PowerSettings"
-                 r"\54533251-82be-4824-96c1-47b60b740d00"
-                 r"\be337238-0d82-4146-a960-4f3749d470c7",
-        "value": "Attributes",
-        "on":    2,
-        "off":   1,
-        "category": "Power Tweaks"
+    "name": "Show Advanced Power Settings",
+    "description": "Show advanced power settings in Control Panel",
+    "tooltip": "ON = extra options in advanced power settings",
+    "type": "registry",
+    "path":  r"SYSTEM\CurrentControlSet\Control\Power\PowerSettings"
+             r"\54533251-82be-4824-96c1-47b60b740d00"
+             r"\be337238-0d82-4146-a960-4f3749d470c7",
+    "value": "Attributes",
+    "on":    2,
+    "off":   1,
+    "root": "HKEY_LOCAL_MACHINE",  # ← critical
+    "category": "Power Tweaks"
     },
     {
         "name":        "Remove 'Learn more about this picture' Desktop Icon",
@@ -111,10 +114,12 @@ POWERCFG_TWEAKS = [
             "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100"
         ],
         "off_cmds": [
-            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0",
-            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0"
+            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 80",
+            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5",
+            "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100",
+            "powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100"    
         ],
-        "tooltip": "Sets min CPU at 5% and max at 100% for both plugged and battery modes. Improves responsiveness without boosting."
+        "tooltip": "Sets min CPU at 5% and max at 100% for both plugged and battery modes. Improves responsiveness without boosting. Default is 80% min and 100% max while plugged in.",
     },
     {
     "description": "CPU Boost Mode",
@@ -128,9 +133,28 @@ POWERCFG_TWEAKS = [
         "Efficient Aggressive": "3",
         "Efficient Enabled": "4"
     },
+    "setting": "PERFBOOSTMODE",
     "default": "Disabled",
-    "tooltip": "Controls processor performance boost policy."
+    "tooltip": "Controls processor performance boost policy.",
+    "read_current_value": lambda: (
+    print("[SYNC DEBUG] Read PERFBOOSTMODE:", read_powercfg_value("ac", "SUB_PROCESSOR", "PERFBOOSTMODE")) or {
+        "0": "Disabled",
+        "1": "Enabled",
+        "2": "Aggressive",
+        "3": "Efficient Aggressive",
+        "4": "Efficient Enabled"
+    }.get(
+        str(read_powercfg_value("ac", "SUB_PROCESSOR", "PERFBOOSTMODE")),
+        "Disabled"
+    )
+    ),
+    "apply": lambda val: run_powercfg_commands([
+        f"powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE {val}",
+        f"powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE {val}",
+        "powercfg /S SCHEME_CURRENT"
+    ])
 }
+
 ]
 
 

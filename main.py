@@ -275,11 +275,12 @@ def apply():
     any_failed = False
 
     for ctrl in apply_controls:
-        result = ctrl["apply"]()
-        if result is False:
-            any_failed = True
-
-        ctrl["initial"] = ctrl["var"].get()
+        if ctrl["var"].get() != ctrl["initial"]:
+            result = ctrl["apply"]()
+            if result is False:
+                print(f"[APPLY ERROR] Failed tweak: {ctrl['tweak']['description']}")
+                any_failed = True
+            ctrl["initial"] = ctrl["var"].get()
 
     check_for_changes()
 
