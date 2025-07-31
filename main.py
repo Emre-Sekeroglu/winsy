@@ -236,7 +236,10 @@ for cat, tweaks in categories.items():
         icon_group.pack(fill="x", padx=0, pady=(0, 5))
 
         for tweak in desktop_icon_tweaks:
-            result = build_tweak_ui(icon_group.subframe, tweak, root)
+            inner = ttk.Frame(icon_group.subframe)
+            inner.pack(fill="x", padx=(0, 0), pady=0)
+            inner.grid_columnconfigure(0, weight=1)
+            build_tweak_ui(inner, tweak, root)
             if result:
                 var, apply_fn = result
                 apply_controls.append(

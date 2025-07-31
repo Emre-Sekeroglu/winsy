@@ -50,6 +50,6 @@ class CollapsiblePane(ttk.Frame):
     
     def _toggle(self):
         if self.show_var.get():
-            self.subframe.pack(fill="x", padx=10, pady=(0, 5))
+            self.subframe.pack(fill="x", padx=0, pady=(0, 5))
         else:
             self.subframe.pack_forget()
