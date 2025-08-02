@@ -239,7 +239,7 @@ for cat, tweaks in categories.items():
             inner = ttk.Frame(icon_group.subframe)
             inner.pack(fill="x", padx=(0, 0), pady=0)
             inner.grid_columnconfigure(0, weight=1)
-            build_tweak_ui(inner, tweak, root)
+            result = build_tweak_ui(inner, tweak, root)
             if result:
                 var, apply_fn = result
                 apply_controls.append(
@@ -412,7 +412,6 @@ recommended_btn = ttk.Button(footer, text="Recommended", command=apply_recommend
 recommended_btn.pack(side="right", padx=(5, 0), pady=8)
 
 # Initially disable Save, Discard, Apply
-save_btn.config(state="disabled")
 discard_btn.config(state="disabled")
 apply_btn.config(state="disabled")
 
