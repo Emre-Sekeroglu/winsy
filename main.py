@@ -16,19 +16,36 @@
 from winsy_version import __version__
 import os
 import sys
+# Relaunch as Admin if not already
+import ctypes
+
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+if not is_admin():
+    # Re-run the script with admin rights
+    ctypes.windll.shell32.ShellExecuteW(
+        None, "runas", sys.executable, f'"{os.path.abspath(__file__)}"', None, 1
+    )
+    sys.exit(0)
+
 import ttkbootstrap as tb
+from splash_screen import SplashScreen
 from ttkbootstrap.constants import *
 from ui_components import CollapsiblePane
 from tweaks_config import TWEAKS
 from tweak_ui import build_tweak_ui
 from pc_specs import get_pc_specs
+from utils import resource_path, show_info_dialog
 import tkinter as tk
 from tkinter import ttk
 from collections import defaultdict
 import json
 from tkinter import filedialog
 import subprocess
-from utils import resource_path, show_info_dialog
 import webbrowser
 
 # Categorize tweaks
@@ -130,9 +147,12 @@ def build_specs_section(root):
 
 # Main App
 root = tb.Window(themename="flatly")
+root.withdraw()  # Hide the main window initially
+SplashScreen(root).show_for(2000)
+root.after(2000, root.deiconify)
+
 # Custom toggle colour
 style = tb.Style()
-
 style.configure(
     "Custom.Roundtoggle.Toolbutton",
     background="#2C3E50",

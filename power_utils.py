@@ -3,7 +3,9 @@ import subprocess
 def run_powercfg_commands(commands: list[str]) -> bool:
     try:
         for cmd in commands:
-            subprocess.run(cmd, shell=True, check=True)
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            subprocess.run(cmd, shell=True, check=True, startupinfo=startupinfo, creationflags=subprocess.CREATE_NO_WINDOW)
         return True
     except subprocess.CalledProcessError as e:
         print("Powercfg error:", e)
@@ -12,7 +14,9 @@ def run_powercfg_commands(commands: list[str]) -> bool:
 def read_powercfg_value(dc_or_ac: str, subgroup: str, setting: str) -> int | None:
     try:
         cmd = f'powercfg /query SCHEME_CURRENT {subgroup} {setting}'
-        output = subprocess.check_output(cmd, shell=True, text=True, stderr=subprocess.STDOUT)
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        output = subprocess.check_output(cmd, shell=True, text=True, startupinfo=startupinfo, creationflags=subprocess.CREATE_NO_WINDOW)
         mode = "AC" if dc_or_ac.lower() == "ac" else "DC"
         for line in output.splitlines():
             if f"{mode} Power Setting Index" in line:
