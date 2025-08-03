@@ -437,8 +437,8 @@ apply_btn.config(state="disabled")
 
 # Attach change tracking
 for ctrl in apply_controls:
-    ctrl["var"].trace_add("write", lambda *_, c=ctrl: check_for_changes())
-
+    if isinstance(ctrl["var"], (tk.BooleanVar, tk.StringVar)):
+        ctrl["var"].trace_add("write", lambda *_, c=ctrl: check_for_changes())
 
 def open_support_link(event):
     import webbrowser

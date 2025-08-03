@@ -10,6 +10,32 @@ import webbrowser
 import subprocess
 from utils import refresh_desktop
 
+def make_text_links_clickable(text_widget):
+    import re
+    import webbrowser
+
+    content = text_widget.get("1.0", "end-1c")
+    url_pattern = re.compile(r"(https?://[^\s)\]]+|www\.[^\s)\]]+)")
+
+    for i, match in enumerate(url_pattern.finditer(content)):
+        start, end = match.span()
+        tag_name = f"link_{i}"
+
+        start_idx = f"1.0 + {start} chars"
+        end_idx = f"1.0 + {end} chars"
+        text_widget.tag_add(tag_name, start_idx, end_idx)
+        text_widget.tag_config(tag_name, foreground="blue", underline=True)
+
+        url = match.group(0)
+        if url.startswith("www."):
+            url = "https://" + url
+
+        def callback(e, url=url):  # avoid late binding bug
+            webbrowser.open(url)
+
+        text_widget.tag_bind(tag_name, "<Enter>", lambda e: text_widget.config(cursor="hand2"))
+        text_widget.tag_bind(tag_name, "<Leave>", lambda e: text_widget.config(cursor="arrow"))
+        text_widget.tag_bind(tag_name, "<Button-1>", callback)
 
 # create_dropdown_for_global_tweaks
 # This function creates a dropdown for global tweaks that are not powercfg specific.
@@ -26,6 +52,7 @@ def create_dropdown_tweak(parent, tweak, root):
 
     options_dict = tweak.get("options", {})
     display_options = list(options_dict.keys())
+    
 
     if "read_current_value" in tweak:
         try:
@@ -76,6 +103,7 @@ def create_dropdown_tweak(parent, tweak, root):
 
             text_box = tk.Text(tooltip_win, wrap="word", height=6, width=50, bg="#ffffe0", relief="solid", bd=1, cursor="xterm")
             text_box.insert("1.0", tweak.get("tooltip", "No description available."))
+            make_text_links_clickable(text_box) # Make links clickable
             text_box.config(state="disabled")
             text_box.pack()
 
@@ -113,8 +141,17 @@ def create_dropdown_tweak(parent, tweak, root):
             print(f"[DROPDOWN ERROR] Selected value not mapped: {selected}")
             return False
 
-        return tweak["apply"](value)
-
+        success = tweak["apply"](value)
+        if success and "read_current_value" in tweak:
+            try:
+                synced_val = tweak["read_current_value"]()
+                if synced_val in display_options:
+                    current_value.set(synced_val)
+                else:
+                    print(f"[SYNC WARNING] Unexpected post-apply value: '{synced_val}' for {tweak['description']}")
+            except Exception as e:
+                print(f"[SYNC ERROR] Failed to re-sync value after apply for {tweak['description']}: {e}")
+        return success
     return current_value, apply
 
 
@@ -163,11 +200,22 @@ def build_tweak_ui(parent, tweak, root):
             y = icon.winfo_rooty()
             tooltip_win.geometry(f"+{x}+{y}")
 
-            text_box = tk.Text(tooltip_win, wrap="word", height=6, width=50, bg="#ffffe0", relief="solid", bd=1, cursor="xterm")
-            text_box.insert("1.0", tweak.get("tooltip", "No description available."))
+            tooltip_text = tweak.get("tooltip", "No description available.")
+            # Create a text box for the tooltip
+            text_box = tk.Text(
+                tooltip_win,
+                wrap="word",
+                height=6,
+                width=50,
+                bg="#ffffe0",
+                relief="solid",
+                bd=1,
+                cursor="arrow"
+            )
+            text_box.insert("1.0", tooltip_text)
+            make_text_links_clickable(text_box) 
             text_box.config(state="disabled")
             text_box.pack()
-
             def on_tooltip_enter(e): nonlocal is_inside_tooltip; is_inside_tooltip = True
             def on_tooltip_leave(e): nonlocal is_inside_tooltip; is_inside_tooltip = False; tooltip_win.after(100, check_and_destroy)
 
@@ -190,7 +238,13 @@ def build_tweak_ui(parent, tweak, root):
             return run_powercfg_commands(cmds)
         else:
             new_val = tweak["on"] if var.get() else tweak["off"]
-            success = write_value(tweak["path"], tweak["value"], new_val, tweak.get("root", "HKEY_LOCAL_MACHINE"))
+            success = write_value(
+                tweak["path"],
+                tweak["value"],
+                new_val,
+                tweak.get("root", "HKEY_LOCAL_MACHINE"),
+                create_if_missing=tweak.get("create_if_missing", False)
+            )
             if success and tweak.get("refresh_desktop"):
                 refresh_desktop()
             return success

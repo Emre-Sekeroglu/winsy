@@ -16,11 +16,16 @@ def read_value(path, value_name, root):
         print("[READ ERROR]", e)
         return None
 
-def write_value(path, value_name, value, root):
+def write_value(path, value_name, value, root, create_if_missing=False):
     try:
-        with winreg.OpenKey(ROOT_KEYS[root], path, 0, WRITE_ACCESS) as key:
-            winreg.SetValueEx(key, value_name, 0, winreg.REG_DWORD, value)
-            return True
+        if create_if_missing:
+            key = winreg.CreateKeyEx(ROOT_KEYS[root], path, 0, WRITE_ACCESS)
+        else:
+            key = winreg.OpenKey(ROOT_KEYS[root], path, 0, WRITE_ACCESS)
+
+        winreg.SetValueEx(key, value_name, 0, winreg.REG_DWORD, value)
+        winreg.CloseKey(key)
+        return True
     except PermissionError:
         print("[WRITE ERROR] Run as Administrator.")
     except Exception as e:

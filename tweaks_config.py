@@ -136,25 +136,33 @@ POWERCFG_TWEAKS = [
     "setting": "PERFBOOSTMODE",
     "default": "Disabled",
     "tooltip": "Controls processor performance boost policy.",
-    "read_current_value": lambda: (
-    print("[SYNC DEBUG] Read PERFBOOSTMODE:", read_powercfg_value("ac", "SUB_PROCESSOR", "PERFBOOSTMODE")) or {
-        "0": "Disabled",
-        "1": "Enabled",
-        "2": "Aggressive",
-        "3": "Efficient Aggressive",
-        "4": "Efficient Enabled"
-    }.get(
-        str(read_powercfg_value("ac", "SUB_PROCESSOR", "PERFBOOSTMODE")),
-        "Disabled"
-    )
-    ),
+    "read_current_value": lambda: {
+    0: "Disabled",
+    1: "Enabled",
+    2: "Aggressive",
+    3: "Efficient Aggressive",
+    4: "Efficient Enabled"
+    }.get(read_powercfg_value("ac", "SUB_PROCESSOR", "PERFBOOSTMODE"), "[UNKNOWN]"),
     "apply": lambda val: run_powercfg_commands([
         f"powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE {val}",
         f"powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE {val}",
         "powercfg /S SCHEME_CURRENT"
     ])
-}
-
+    },
+    {
+    "name": "Enable Hibernate Option",
+    "description": "Show Hibernate in Power Menu",
+    "tooltip": "ON = Hibernate option will be visible in Start > Power menu.\nOFF = Hibernate will be hidden.",
+    "type": "registry",
+    "path": r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings",
+    "value": "ShowHibernateOption",
+    "on": 1,
+    "off": 0,
+    "root": "HKEY_LOCAL_MACHINE",
+    "default": 0,
+    "create_if_missing": True,
+    "category": "Power Tweaks"
+    }
 ]
 
 
