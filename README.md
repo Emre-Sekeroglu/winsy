@@ -1,119 +1,117 @@
-Winsy
+Winsy v0.7 – 2025-08-03
+⚠️ Disclaimer: Winsy modifies system-level settings. Use responsibly and only if you understand the implications of each tweak. Some actions require administrator privileges. All changes are reversible through the app or manually.
 
-## [v0.7] - In Development in the dev branch
+🧪 Tested only on Windows 11 24H2.
 
-⚠️ Disclaimer
-Winsy modifies system-level settings. Use responsibly and only if you understand the implications of each tweak. Some actions require administrator privileges. All changes are reversible through the app or manually.
-
-Overview
-
-Winsy is a lightweight desktop application that simplifies common Windows system tweaks via a clean and modern interface. Whether you're optimizing performance or customizing your setup, Winsy gives you structured access to essential registry and power settings—no need to dig through regedit or the command line.
+🧭 Overview
+Winsy is a lightweight desktop application that simplifies common Windows system tweaks through a clean and modern UI. Whether you're optimizing performance or personalizing your system, Winsy gives you structured, categorized access to critical registry and power settings—no need to mess with regedit, powercfg, or terminal commands.
 
 ✨ Features
-
 ✅ Registry Tweaks
-
-Toggle system behaviors like hiding shortcut arrows or disabling telemetry. Managed through registry_utils.py using the native winreg API.
+Toggle system behaviors like shortcut arrows, telemetry, or desktop icons. Handled via winreg in registry_utils.py.
 
 ⚡ Power Tweaks
-
-Apply power-saving or performance enhancements via powercfg commands for AC/DC modes. Adjust CPU throttling, turbo boost, and more with one click (power_utils.py).
+Manage CPU performance, turbo boost, and throttling profiles through powercfg. Supports dropdowns and toggle switches. Defined in power_utils.py.
 
 🔄 Live System Sync
-
-Each toggle auto-syncs with your system's actual configuration at launch. See accurate status immediately—no guesswork.
+Each tweak reflects the current system state on launch—no guesswork. What you see is what’s configured.
 
 🖥️ My PC Specs Panel
+OS version and edition
 
-Displays:
+Architecture
 
-OS Version and Edition
+Motherboard model and serial number
 
-System Architecture
+Reboot to BIOS with confirmation
 
-Motherboard Model and Serial
-
-Quick copy buttons for serials
-Includes Reboot into BIOS with confirmation.
-
+Copy buttons for serials
 
 🧩 Simple Collapsible UI
-
-Modern, collapsible panes categorize tweaks under titles like:
+All tweaks are organized into collapsible sections like:
 
 Power Tweaks
 
 Personalization
 
-Network & Privacy (etc.)
+Network & Privacy
 
+Supports new compact collapsible panes for cleaner layout.
 
 🔧 Profile System
-
-Load/save tweak profiles to .json
+Save/load your tweak profiles as .json
 
 One-click Recommended Profile
 
-Track unsaved changes and disable/enable Apply, Save, Discard intelligently
-
+Apply/Discard buttons activate intelligently on unsaved changes
 
 💡 Interactive Tooltips
+Rich, multiline descriptions
 
-Custom hover tooltips with:
+Clickable URLs
 
-Multi-line rich descriptions
+Auto-dismiss on hover-out
 
-Clickable URLs (cursor changes on link hover)
-
-Auto-dismiss behavior on mouse leave
-
+Cursor changes on link hover
 
 🛠️ How It Works
+Registry tweaks: winreg via registry_utils.py
 
-Registry Tweaks via winreg (see registry_utils.py)
+Power tweaks: powercfg via power_utils.py
 
-Power Tweaks via powercfg (see power_utils.py)
+All tweak definitions in tweaks_config.py
 
-All tweak definitions live in tweaks_config.py
+State sync at launch
 
-State sync on app launch reflects real system values
-
-Packaged with Python + ttkbootstrap for a clean theme
-
+Packaged with Python + ttkbootstrap
 
 🧪 Tech Stack
-
 Python 3.x
 
-ttkbootstrap (GUI theming)
+ttkbootstrap (for theming)
 
-Native Windows APIs: winreg, powercfg, PowerShell (via subprocess)
+Native Windows APIs: winreg, powercfg, subprocess
 
+PyInstaller-based build script
 
 🔐 Permissions
-
-Some tweaks (especially under the Registry or Power categories) require administrator rights to take effect. Winsy detects permission issues and notifies users with clear error dialogs.
+Some tweaks require administrator rights. Winsy checks for admin access at startup and relaunches with elevation if needed. Any failure to apply tweaks will be clearly indicated via an error dialog.
 
 🚀 Getting Started
 
-1. Clone or download this repo
-
-2. Ensure Python 3.x and dependencies are installed
-
+git clone https://github.com/yourname/winsy
+cd winsy
 python main.py
 
-3. To package as an .exe (with icon and version info):
-
+📦 To Package as .exe
+Basic:
 pyinstaller --noconfirm --onefile --windowed --icon=winsy_icon.ico main.py
 
-Or use the enhanced build script:
-
+Enhanced:
 python build.py
 
-> 📦 Automatically generates version.txt, builds the executable with metadata, and creates checksum files.
+✅ This auto-generates version.txt, builds with metadata, embeds the icon and loader GIF, and exports checksum files.
 
+🆕 What’s New in v0.7 – 2025-08-03
+Save and Load tweak profiles in JSON format
+Load Recommended Preset in one click
+Apply/Discard buttons now activate on unsaved changes
+New Compact Collapsible Panes UI
+Tooltips now support clickable URLs
+New splash screen and centered startup
+Tooltip window styling refinements
 
+Added new tweaks:
+Show Advanced Power Settings in Control Panel
+CPU Boost Mode dropdown (5 performance options)
+Toggle visibility of Computer, User’s Files, Recycle Bin, Network, and Control Panel desktop icons
+Improved CPU optimization toggle (5%/100% AC+DC)
+Admin elevation check on launch
+Cleaned up layout, icon styling, and change tracking system
 
-❗ Known Issue
+❗ Known Issues
+False Positive Warning: Some antivirus programs (e.g. Windows Defender) may incorrectly flag the .exe as a threat due to being unsigned.
 
-Windows Defender may incorrectly flag the .exe as a Trojan although the exwcutable is sent to microsoft servers to be whitelisted. If Winfows Defender flags it as a false positive due to low reputation of unsigned executables, you may allow the exe and ignore the message. The source is open and licensed under GPLv3.
+The binary is sent to Microsoft for reputation improvement.
+
+You may safely allow the app if you downloaded it from a trusted source.
