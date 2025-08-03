@@ -51,6 +51,7 @@ cmd = [
     "--windowed",
     "--icon=winsy_icon.ico",
     "--add-data", "winsy_icon.ico;.",
+    "--add-data", "winsy_loader.gif;.",
     f"--name={exe_name}",
     "--version-file=version.txt",
     "main.py",

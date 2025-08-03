@@ -3,11 +3,16 @@ import subprocess
 
 def _run_powershell(cmd):
     try:
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
         result = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", cmd],
+            ["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", cmd],
             check=True,
             capture_output=True,
-            text=True
+            text=True,
+            startupinfo=startupinfo,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
         return result.stdout.strip()
     except Exception:

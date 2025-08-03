@@ -2,6 +2,16 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk
+import ctypes
+
+def refresh_desktop():
+    """Forces Windows to refresh the desktop icons."""
+    SHCNE_ASSOCCHANGED = 0x08000000
+    SHCNF_IDLIST = 0x0000
+
+    ctypes.windll.shell32.SHChangeNotify(
+        SHCNE_ASSOCCHANGED, SHCNF_IDLIST, None, None
+    )
 
 def resource_path(relative_path):
     """Get absolute path to resource (handles PyInstaller bundling)."""
