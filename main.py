@@ -242,18 +242,39 @@ build_specs_section(scroll_frame)
 apply_controls = []
 
 desktop_icon_tweaks = [t for t in TWEAKS if t.get("is_desktop_icon_toggle") is True]
-icon_descriptions = {t["description"] for t in desktop_icon_tweaks}
+desktop_icon_tweaks = [t for t in TWEAKS if t.get("is_desktop_icon_toggle") is True]
+desktop_icon_ids = {id(t) for t in desktop_icon_tweaks}
 
-
+# === START OF REPLACEMENT ===
 for cat, tweaks in categories.items():
     pane = CollapsiblePane(scroll_frame, text=cat)
     pane.pack(fill="x", padx=20, pady=5)
 
     if cat == "Personalization" and desktop_icon_tweaks:
-        icon_group = CollapsiblePane(
-            pane.subframe, text="Show/Hide Desktop Icons", compact=True
+        icon_wrapper = tk.Frame(
+            pane.subframe,
+            highlightbackground="white",
+            highlightthickness=1,
+            bd=0,
+            bg="white"
         )
-        icon_group.pack(fill="x", padx=0, pady=(0, 5))
+        icon_wrapper.pack(fill="x", padx=0, pady=(0, 0))
+
+        icon_group = CollapsiblePane(icon_wrapper, text="Show/Hide Desktop Icons", compact=True)
+        icon_group.pack(fill="x", padx=0, pady=0)
+
+        def update_icon_group_border():
+            is_open = icon_group.show_var.get()
+            icon_wrapper.config(highlightbackground="#2C3E50" if is_open else "white")
+            bg_color = "#f5f7fa" if is_open else "white"
+            icon_group.subframe.config(bg=bg_color)
+            for child in icon_group.subframe.winfo_children():
+                try:
+                    child.config(bg=bg_color)
+                except:
+                    pass
+
+        icon_group.show_var.trace_add("write", lambda *_: update_icon_group_border())
 
         for tweak in desktop_icon_tweaks:
             inner = ttk.Frame(icon_group.subframe)
@@ -262,25 +283,83 @@ for cat, tweaks in categories.items():
             result = build_tweak_ui(inner, tweak, root)
             if result:
                 var, apply_fn = result
-                apply_controls.append(
-                    {
+                apply_controls.append({
+                    "tweak": tweak,
+                    "var": var,
+                    "apply": apply_fn,
+                    "initial": var.get(),
+                })
+
+        # ✅ ADD THIS: fallback render for other Personalization tweaks
+        for tweak in tweaks:
+            if id(tweak) in desktop_icon_ids:
+                continue
+            result = build_tweak_ui(pane.subframe, tweak, root)
+            if result:
+                var, apply_fn = result
+                apply_controls.append({
+                    "tweak": tweak,
+                    "var": var,
+                    "apply": apply_fn,
+                    "initial": var.get()
+                })
+
+
+    elif cat == "Power Tweaks":
+        power_buttons = [t for t in tweaks if t.get("group") == "Power Buttons"]
+        other_power_tweaks = [t for t in tweaks if t.get("group") != "Power Buttons"]
+
+        if power_buttons:
+            wrapper = tk.Frame(
+                pane.subframe,
+                highlightbackground="white",  # will update dynamically
+                highlightthickness=1,
+                bd=0,
+                bg="white"
+            )
+            wrapper.pack(fill="x", padx=0, pady=(0, 0))  # adds inner spacing
+
+            pb_group = CollapsiblePane(wrapper, text="Change what power buttons do", compact=True)
+            pb_group.pack(fill="x", padx=0, pady=0)
+
+            def update_power_group_border():
+                border_color = "#2C3E50" if pb_group.show_var.get() else "white"
+                wrapper.config(highlightbackground=border_color)
+
+            pb_group.show_var.trace_add("write", lambda *_: update_power_group_border())
+
+            for tweak in power_buttons:
+                result = build_tweak_ui(pb_group.subframe, tweak, root)
+                if result:
+                    var, apply_fn = result
+                    apply_controls.append({
                         "tweak": tweak,
                         "var": var,
                         "apply": apply_fn,
-                        "initial": var.get(),
-                    }
+                        "initial": var.get()
+                    })
+
+        for tweak in other_power_tweaks:
+            result = build_tweak_ui(pane.subframe, tweak, root)
+            if result:
+                var, apply_fn = result
+                apply_controls.append({
+                    "tweak": tweak,
+                    "var": var,
+                    "apply": apply_fn,
+                    "initial": var.get()
+                })
+
+    else:
+        for tweak in tweaks:
+            if id(tweak) in desktop_icon_ids:
+                continue
+            result = build_tweak_ui(pane.subframe, tweak, root)
+            if result:
+                var, apply_fn = result
+                apply_controls.append(
+                    {"tweak": tweak, "var": var, "apply": apply_fn, "initial": var.get()}
                 )
-
-    for tweak in tweaks:
-        if tweak["description"] in icon_descriptions:
-            continue
-        result = build_tweak_ui(pane.subframe, tweak, root)
-        if result:
-            var, apply_fn = result
-            apply_controls.append(
-                {"tweak": tweak, "var": var, "apply": apply_fn, "initial": var.get()}
-            )
-
 
 enable_scroll_behavior()
 

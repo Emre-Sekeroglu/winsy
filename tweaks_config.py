@@ -103,6 +103,170 @@ REGISTRY_TWEAKS = [
 # -------------------------------
 
 POWERCFG_TWEAKS = [
+# Start change what power buttons do
+{
+    "description": "Power Button Action (On Battery)",
+    "type": "powercfg_dropdown",
+    "category": "Power Tweaks",
+    "group": "Power Buttons",
+    "setting_guid": "7648efa3-dd9c-4e3e-b566-50f929386280",
+    "setting": "PBUTTONACTION",
+    "mode": "dc",
+    "options": {
+        "Do nothing": "0",
+        "Sleep": "1",
+        "Hibernate": "2",
+        "Shut down": "3"
+    },
+    "default": "Sleep",
+    "tooltip": "What happens when you press the power button on battery.",
+    "read_current_value": lambda: {
+        0: "Do nothing",
+        1: "Sleep",
+        2: "Hibernate",
+        3: "Shut down"
+    }.get(read_powercfg_value("dc", "SUB_BUTTONS", "PBUTTONACTION"), "[UNKNOWN]"),
+    "apply": lambda val: run_powercfg_commands([
+        "powercfg /setdcvalueindex SCHEME_CURRENT SUB_BUTTONS PBUTTONACTION " + val,
+        "powercfg /S SCHEME_CURRENT"
+    ])
+},
+{
+    "description": "Power Button Action (Plugged In)",
+    "type": "powercfg_dropdown",
+    "category": "Power Tweaks",
+    "group": "Power Buttons",
+    "setting_guid": "7648efa3-dd9c-4e3e-b566-50f929386280",
+    "setting": "PBUTTONACTION",
+    "mode": "ac",
+    "options": {
+        "Do nothing": "0",
+        "Sleep": "1",
+        "Hibernate": "2",
+        "Shut down": "3"
+    },
+    "default": "Sleep",
+    "tooltip": "What happens when you press the power button while plugged in.",
+    "read_current_value": lambda: {
+        0: "Do nothing",
+        1: "Sleep",
+        2: "Hibernate",
+        3: "Shut down"
+    }.get(read_powercfg_value("ac", "SUB_BUTTONS", "PBUTTONACTION"), "[UNKNOWN]"),
+    "apply": lambda val: run_powercfg_commands([
+        "powercfg /setacvalueindex SCHEME_CURRENT SUB_BUTTONS PBUTTONACTION " + val,
+        "powercfg /S SCHEME_CURRENT"
+    ])
+},
+{
+    "description": "Sleep Button Action (On Battery)",
+    "type": "powercfg_dropdown",
+    "category": "Power Tweaks",
+    "group": "Power Buttons",
+    "setting_guid": "96996bc0-ad50-47ec-923b-6f41874dd9eb",
+    "setting": "SBUTTONACTION",
+    "mode": "dc",
+    "options": {
+        "Do nothing": "0",
+        "Sleep": "1",
+        "Hibernate": "2",
+        "Shut down": "3"
+    },
+    "default": "Sleep",
+    "tooltip": "What happens when you press the sleep button on battery.",
+    "read_current_value": lambda: {
+        0: "Do nothing",
+        1: "Sleep",
+        2: "Hibernate",
+        3: "Shut down"
+    }.get(read_powercfg_value("dc", "SUB_BUTTONS", "SBUTTONACTION"), "[UNKNOWN]"),
+    "apply": lambda val: run_powercfg_commands([
+        "powercfg /setdcvalueindex SCHEME_CURRENT SUB_BUTTONS SBUTTONACTION " + val,
+        "powercfg /S SCHEME_CURRENT"
+    ])
+},
+{
+    "description": "Sleep Button Action (Plugged In)",
+    "type": "powercfg_dropdown",
+    "category": "Power Tweaks",
+    "group": "Power Buttons",
+    "setting_guid": "96996bc0-ad50-47ec-923b-6f41874dd9eb",
+    "setting": "SBUTTONACTION",
+    "mode": "ac",
+    "options": {
+        "Do nothing": "0",
+        "Sleep": "1",
+        "Hibernate": "2",
+        "Shut down": "3"
+    },
+    "default": "Sleep",
+    "tooltip": "What happens when you press the sleep button while plugged in.",
+    "read_current_value": lambda: {
+        0: "Do nothing",
+        1: "Sleep",
+        2: "Hibernate",
+        3: "Shut down"
+    }.get(read_powercfg_value("ac", "SUB_BUTTONS", "SBUTTONACTION"), "[UNKNOWN]"),
+    "apply": lambda val: run_powercfg_commands([
+        "powercfg /setacvalueindex SCHEME_CURRENT SUB_BUTTONS SBUTTONACTION " + val,
+        "powercfg /S SCHEME_CURRENT"
+    ])
+},
+{
+    "description": "Lid Close Action (On Battery)",
+    "type": "powercfg_dropdown",
+    "category": "Power Tweaks",
+    "group": "Power Buttons",
+    "setting_guid": "5ca83367-6e45-459f-a27b-476b1d01c936",
+    "setting": "LIDACTION",
+    "mode": "dc",
+    "options": {
+        "Do nothing": "0",
+        "Sleep": "1",
+        "Hibernate": "2",
+        "Shut down": "3"
+    },
+    "default": "Do nothing",
+    "tooltip": "What happens when you close the laptop lid on battery.",
+    "read_current_value": lambda: {
+        0: "Do nothing",
+        1: "Sleep",
+        2: "Hibernate",
+        3: "Shut down"
+    }.get(read_powercfg_value("dc", "SUB_BUTTONS", "LIDACTION"), "[UNKNOWN]"),
+    "apply": lambda val: run_powercfg_commands([
+        "powercfg /setdcvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION " + val,
+        "powercfg /S SCHEME_CURRENT"
+    ])
+},
+{
+    "description": "Lid Close Action (Plugged In)",
+    "type": "powercfg_dropdown",
+    "category": "Power Tweaks",
+    "group": "Power Buttons",
+    "setting_guid": "5ca83367-6e45-459f-a27b-476b1d01c936",
+    "setting": "LIDACTION",
+    "mode": "ac",
+    "options": {
+        "Do nothing": "0",
+        "Sleep": "1",
+        "Hibernate": "2",
+        "Shut down": "3"
+    },
+    "default": "Do nothing",
+    "tooltip": "What happens when you close the laptop lid while plugged in.",
+    "read_current_value": lambda: {
+        0: "Do nothing",
+        1: "Sleep",
+        2: "Hibernate",
+        3: "Shut down"
+    }.get(read_powercfg_value("ac", "SUB_BUTTONS", "LIDACTION"), "[UNKNOWN]"),
+    "apply": lambda val: run_powercfg_commands([
+        "powercfg /setacvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION " + val,
+        "powercfg /S SCHEME_CURRENT"
+    ])
+    },
+# End change what power buttons do
     {
         "description": "Set CPU Min 5% / Max 100% (AC+DC)",
         "category": "Power Tweaks",
