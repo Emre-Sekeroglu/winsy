@@ -226,14 +226,14 @@ def _on_mousewheel(event):
 
 # Bind scroll globally only when mouse is over canvas
 def enable_scroll_behavior():
-    def bind_mousewheel(_):
-        root.bind_all("<MouseWheel>", _on_mousewheel)
+    def on_mousewheel(event):
+        if sys.platform == "darwin":
+            delta = event.delta
+        else:
+            delta = int(event.delta / 120)
+        canvas.yview_scroll(-1 * delta, "units")
 
-    def unbind_mousewheel(_):
-        root.unbind_all("<MouseWheel>")
-
-    canvas.bind("<Enter>", bind_mousewheel)
-    canvas.bind("<Leave>", unbind_mousewheel)
+    scroll_frame.bind_all("<MouseWheel>", on_mousewheel)
 
 
 # Build content
